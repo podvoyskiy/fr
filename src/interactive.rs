@@ -1,4 +1,4 @@
-use crate::{prelude::*, state::State};
+use crate::{filter::{Filter}, prelude::*, state::State};
 use crossterm::{
     cursor::{Hide, MoveTo, Show}, 
     event::{read, KeyCode, KeyModifiers}, 
@@ -7,8 +7,8 @@ use crossterm::{
     terminal::{self, Clear, ClearType}
 };
 
-pub fn run(&count_choices: &u8) -> Result<(), Box<dyn Error>> {
-    let mut state = State::load(&count_choices)?;
+pub fn run(filter: Box<dyn Filter>, &count_choices: &u8) -> Result<(), Box<dyn Error>> {
+    let mut state = State::load(filter, &count_choices)?;
 
     let stdout = std::io::stdout();
     let mut tty = File::create("/dev/tty")?;
@@ -18,7 +18,12 @@ pub fn run(&count_choices: &u8) -> Result<(), Box<dyn Error>> {
 
     loop {
         execute!(tty, Clear(ClearType::All), MoveTo(0, 0))?;
-        execute!(tty, SetForegroundColor(Color::Yellow), Print(format!("> {}\n", state.current_cmd_mask)), SetForegroundColor(Color::Reset))?;
+        execute!(
+            tty, 
+            SetForegroundColor(Color::Yellow), 
+            Print(format!("> {}\n", state.current_cmd_mask)), 
+            SetForegroundColor(Color::Reset)
+        )?;
 
         if let Some(indices) = &state.filtered_indices_cmds {
             for (i, &idx) in indices.iter().enumerate() {

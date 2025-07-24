@@ -4,7 +4,7 @@ mod interactive;
 mod settings;
 mod commands;
 mod state;
-
+mod filter;
 mod prelude { 
     pub use colored::*;
     pub use std::{error::Error, fs::read_to_string, path::PathBuf, env, fs::{File}};
@@ -12,6 +12,7 @@ mod prelude {
 use prelude::*;
 use settings::{AppConfig};
 use commands::{CliCommand};
+
 
 fn main() -> Result<(), String> {
     let mut args: Vec<String> = env::args().collect();
@@ -21,9 +22,10 @@ fn main() -> Result<(), String> {
 
 fn run (args: Vec<String>) -> Result<(), String> {
     let mut config = AppConfig::load().map_err(|e| e.to_string())?;
+    let filter = Box::new(filter::SkimFilter::new());
 
     match args.len() { 
-        0 => interactive::run(&config.count_choices).map_err(|e| e.to_string()),
+        0 => interactive::run(filter, &config.count_choices).map_err(|e| e.to_string()),
         _ => {
             match CliCommand::handle_cli_args(&args)? {
                 CliCommand::SetCountChoices(value) => {

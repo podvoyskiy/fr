@@ -1,10 +1,8 @@
-use crate::prelude::*;
+use crate::{filter::Filter, prelude::*};
 use std::{collections::HashSet};
-use fuzzy_matcher::FuzzyMatcher;
-use fuzzy_matcher::skim::SkimMatcherV2;
 
 pub struct State {
-    matcher: SkimMatcherV2,
+    filter: Box<dyn Filter>,
     count_choices: u8,
     pub cmds: Vec<String>,
     pub filtered_indices_cmds: Option<Vec<usize>>,
@@ -13,7 +11,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn load(&count_choices: &u8) -> Result<Self, Box<dyn Error>> {
+    pub fn load(filter: Box<dyn Filter>, &count_choices: &u8) -> Result<Self, Box<dyn Error>> {
         let history_path = PathBuf::from(env::var("HOME").unwrap_or_default()).join(".bash_history");
 
         if !history_path.exists() || history_path.metadata()?.len() == 0 {
@@ -28,7 +26,7 @@ impl State {
             .collect();
 
         Ok(Self {
-            matcher: SkimMatcherV2::default(),
+            filter,
             count_choices,
             cmds,
             filtered_indices_cmds: None,
@@ -43,7 +41,7 @@ impl State {
             self.filtered_indices_cmds = None;
             return;
         }
-        let matches = self.process_matches();
+        let matches = self.filter.match_items(&self.cmds, &self.current_cmd_mask);
 
         self.filtered_indices_cmds = Some(
             matches.into_iter()
@@ -51,19 +49,5 @@ impl State {
                 .map(|(_, idx)| idx)
                 .collect()
         );
-    }
-
-    fn process_matches(&self) -> Vec<(i64, usize)> {
-        let mut matches: Vec<(i64, usize)> = self.cmds
-            .iter()
-            .enumerate()
-            .filter_map(|(i, cmd)| {
-                self.matcher.fuzzy_match(cmd, &self.current_cmd_mask)
-                    .map(|score| (score, i))
-            })
-            .collect();
-        
-        matches.sort_by(|a, b| b.0.cmp(&a.0));
-        matches
     }
 }
