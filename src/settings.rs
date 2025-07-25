@@ -4,6 +4,7 @@ use crate::prelude::*;
 pub struct AppConfig {
     path_to_file: PathBuf,
     pub count_choices: u8,
+    pub filter_id: u8,
 }
 
 impl AppConfig {
@@ -14,6 +15,7 @@ impl AppConfig {
         if !config_path.exists() {
             let mut config_file = File::create(&config_path)?;
             writeln!(&mut config_file, "count_choices=10")?;
+            writeln!(&mut config_file, "filter_id=1")?;
         }
 
         let content = read_to_string(&config_path)?;
@@ -21,12 +23,14 @@ impl AppConfig {
         let mut config = AppConfig {
             path_to_file: config_path,
             count_choices: 0,
+            filter_id: 1,
         };
 
         for line in content.lines() {
             let parts: Vec<&str> = line.split('=').collect();
             match parts[0].trim() {
                 "count_choices" => config.count_choices = parts[1].trim().parse()?,
+                "filter_id" => config.filter_id = parts[1].trim().parse()?,
                 other => return Err(format!("Unknown config key: '{other}'").into()),
             }
         }
@@ -37,6 +41,7 @@ impl AppConfig {
     pub fn save(&self) -> Result<(), std::io::Error> {
         let mut config_file = File::create(&self.path_to_file)?;
         writeln!(&mut config_file, "count_choices={}", &self.count_choices)?;
+        writeln!(&mut config_file, "filter_id={}", &self.filter_id)?;
         Ok(())
     }
 
@@ -45,5 +50,7 @@ impl AppConfig {
         println!("{}", "Options:".yellow().bold());
         println!("{}                Show this help", "  -h, --help".blue().bold());
         println!("{}{}   Set count choices to display (current: {})", "  -c, --count-choices".blue().bold(), " NUM".blue(), self.count_choices);
+        println!("{}{}          Set filter (1 - SubstringFilter, 2 - SkimMatcherV2) (current: {})",
+            "  -f, --filter".blue().bold(), " NUM".blue(), self.filter_id);
     }
 }

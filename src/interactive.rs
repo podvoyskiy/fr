@@ -1,4 +1,4 @@
-use crate::{filter::{Filter}, prelude::*, state::State};
+use crate::{filters::{Filter}, prelude::*, state::State};
 use crossterm::{
     cursor::{Hide, MoveTo, Show}, 
     event::{read, KeyCode, KeyModifiers}, 

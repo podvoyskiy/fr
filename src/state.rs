@@ -1,4 +1,4 @@
-use crate::{filter::Filter, prelude::*};
+use crate::{filters::Filter, prelude::*};
 use std::{collections::HashSet};
 
 pub struct State {
