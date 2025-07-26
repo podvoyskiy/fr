@@ -1,8 +1,8 @@
-use crate::{filters::Filter, prelude::*};
+use crate::{filters::Filtering, prelude::*};
 use std::{collections::HashSet};
 
 pub struct State {
-    filter: Box<dyn Filter>,
+    filter: Box<dyn Filtering>,
     count_choices: u8,
     pub cmds: Vec<String>,
     pub filtered_indices_cmds: Option<Vec<usize>>,
@@ -11,7 +11,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn load(filter: Box<dyn Filter>, &count_choices: &u8) -> Result<Self, Box<dyn Error>> {
+    pub fn load(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<Self, Box<dyn Error>> {
         let history_path = PathBuf::from(env::var("HOME").unwrap_or_default()).join(".bash_history");
 
         if !history_path.exists() || history_path.metadata()?.len() == 0 {

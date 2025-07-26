@@ -1,6 +1,37 @@
 use fuzzy_matcher::{skim::SkimMatcherV2, FuzzyMatcher};
 
-pub trait Filter {
+#[derive(Clone, Copy)]
+pub enum FilterType {
+    Skim = 1,
+    Substring = 2
+}
+
+impl FilterType {
+    pub fn default() -> Self {
+        FilterType::Skim
+    }
+
+    pub fn from_id(id: u8) -> Option<Self> {
+        match id {
+            1 => Some(FilterType::Skim),
+            2 => Some(FilterType::Substring),
+            _ => None
+        }
+    }
+
+    pub fn id(&self) -> u8 {
+        *self as u8
+    }
+
+    pub fn create_filter(&self) -> Box<dyn Filtering> {
+        match self {
+            FilterType::Skim => Box::new(SkimFilter::new()),
+            FilterType::Substring => Box::new(SubstringFilter)
+        }
+    }
+}
+
+pub trait Filtering {
     fn match_items(&self, cmds: &[String], pattern: &str) -> Vec<(i64, usize)>;
 }
 
@@ -16,7 +47,7 @@ impl SkimFilter {
     }
 }
 
-impl Filter for SkimFilter {
+impl Filtering for SkimFilter {
     fn match_items(&self, cmds: &[String], pattern: &str) -> Vec<(i64, usize)> {
         let mut matches: Vec<(i64, usize)> = cmds
             .iter()
@@ -34,7 +65,7 @@ impl Filter for SkimFilter {
 
 pub struct SubstringFilter;
 
-impl Filter for SubstringFilter {
+impl Filtering for SubstringFilter {
     fn match_items(&self, cmds: &[String], pattern: &str) -> Vec<(i64, usize)> {
         let pattern_lower = pattern.to_lowercase();
         cmds.iter()

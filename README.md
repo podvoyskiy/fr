@@ -32,4 +32,6 @@
 ### Usage
 ```bash
 fr  #Interactive search
+
+fr --help  #show options
 ```
