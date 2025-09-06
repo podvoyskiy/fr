@@ -13,20 +13,14 @@
    chmod +x ~/.local/bin/fr
    ```
 
-3. Create wrapper script `~/.local/bin/fr_wrapper`:
+3. Add to `~/.bashrc`:
     ```bash
-    #!/bin/bash
-    [ $# -gt 0 ] && exec ~/.local/bin/fr "$@" || eval "$(~/.local/bin/fr)"
+    fr() { [ $# -gt 0 ] && ~/.local/bin/fr "$@" || eval "$(~/.local/bin/fr)"; }
     ```
 
-4. Set permissions:
+4. Reload bashrc:
     ```bash
-    chmod +x ~/.local/bin/fr_wrapper
-    ```
-
-5. Add to `~/.bashrc`:
-    ```bash
-    alias fr='~/.local/bin/fr_wrapper'
+    source ~/.bashrc
     ```
 
 ### Usage

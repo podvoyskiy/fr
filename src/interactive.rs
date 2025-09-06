@@ -73,7 +73,7 @@ pub fn run(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<(), Box<dy
                     if let Some(indices) = &state.filtered_indices_cmds {
                         if let Some(&selected_cmd_idx) = indices.get(state.selected_index_cmd) {
                             if let Some(selected_cmd) = state.cmds.get(selected_cmd_idx) {
-                                execute!(&stdout, Print(format!("bash -ci \"{selected_cmd}\"")))?;
+                                execute!(&stdout, Print(format!("{selected_cmd}\n")))?;
                                 break;
                             }
                         }
