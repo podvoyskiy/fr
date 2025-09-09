@@ -33,14 +33,13 @@ fr --help  #show options
 ### Development Version
 
 ```bash
-# Clone and setup:
-git clone https://github.com/podvoyskiy/fr.git
+git clone https://github.com/podvoyskiy/fr.git ./fr
 
 cd fr
 
 echo 'frdev() { if [ $# -gt 0 ]; then cargo run --quiet -- "$@"; else eval "$(cargo run --quiet --)"; fi }' >> ~/.bashrc
 
 source ~/.bashrc
-```
 
-***Usage:*** `frdev` (same as `fr`)
+frdev #usage same as fr
+```

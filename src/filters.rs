@@ -80,3 +80,24 @@ impl Filtering for SubstringFilter {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_skim_filter() {
+        let filter = SkimFilter::new();
+        let cmds = vec!["foo".to_string(), "bar".to_string()];
+        let results = filter.match_items(&cmds, "bar");
+        assert!(!results.is_empty());
+    }
+
+    #[test]
+    fn test_substring_filter() {
+        let filter = SubstringFilter;
+        let cmds = vec![String::from("hello"), String::from("world")];
+        let results = filter.match_items(&cmds, "ell");
+        assert_eq!(results, vec![(99, 0)]);
+    }
+}

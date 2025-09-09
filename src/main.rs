@@ -17,13 +17,10 @@ use commands::{CliCommand};
 
 use crate::{filters::FilterType};
 
-fn main() -> Result<(), AppError> {
+fn main () -> Result<(), AppError> {
     let mut args: Vec<String> = env::args().collect();
     args.remove(0); //remove program name
-    run(args)
-}
 
-fn run (args: Vec<String>) -> Result<(), AppError> {
     let mut config = AppConfig::load()?;
     
     let filter = config.filter_type.create_filter();
@@ -50,36 +47,5 @@ fn run (args: Vec<String>) -> Result<(), AppError> {
                 },
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::run;
-
-    #[test]
-    fn unknown_command() {
-        let args: Vec<String> = vec![
-            "fake_arg".to_string()
-        ];
-        assert!(run(args).is_err());
-    }
-
-    #[test]
-    fn set_correct_count_choices() {
-        let args: Vec<String> = vec![
-            "-c".to_string(),
-            10.to_string(),
-        ];
-        assert!(run(args).is_ok());
-    }
-
-    #[test]
-    fn set_incorrect_count_choices() {
-        let args: Vec<String> = vec![
-            "-c".to_string(),
-            256.to_string(),
-        ];
-        assert!(run(args).is_err());
     }
 }

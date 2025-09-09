@@ -58,3 +58,13 @@ impl AppConfig {
             "  -f, --filter".blue().bold(), " NUM".blue(), self.filter_type.id());
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn config_load() {
+        assert!(AppConfig::load().is_ok())
+    }
+}

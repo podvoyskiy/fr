@@ -1,4 +1,4 @@
-use std::{error, fmt, io, num};
+use std::{error, fmt, io, num::ParseIntError};
 
 #[derive(Debug)]
 pub enum AppError {
@@ -29,8 +29,19 @@ impl From<io::Error> for AppError {
     }
 }
 
-impl From<num::ParseIntError> for AppError {
-    fn from(value: num::ParseIntError) -> Self {
+impl From<ParseIntError> for AppError {
+    fn from(value: ParseIntError) -> Self {
         AppError::ParseIntError(value.to_string())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_parse_int_error() {
+        let result: Result<i32, AppError> = "not a number".parse().map_err(|e: ParseIntError| e.into());
+        assert!(result.is_err());
     }
 }

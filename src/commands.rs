@@ -31,3 +31,26 @@ impl CliCommand {
     }
 }
 
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn unknown_command() {
+        let args: Vec<String> = vec!["fake_arg".to_string()];
+        assert!(CliCommand::handle_cli_args(&args).is_err());
+    }
+
+    #[test]
+    fn correct_count_choices() {
+        let args: Vec<String> = vec!["-c".to_string(), 10.to_string()];
+        assert!(CliCommand::handle_cli_args(&args).is_ok());
+    }
+
+    #[test]
+    fn incorrect_count_choices() {
+        let args: Vec<String> = vec!["-c".to_string(), 256.to_string()];
+        assert!(CliCommand::handle_cli_args(&args).is_err());
+    }
+}
+

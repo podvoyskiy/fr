@@ -51,3 +51,14 @@ impl State {
         );
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::filters::SubstringFilter;
+
+    #[test]
+    fn history_load() {
+        assert!(State::load(Box::new(SubstringFilter), &1).is_ok())
+    }
+}
