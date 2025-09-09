@@ -1,4 +1,4 @@
-use crate::{filters::{Filtering}, prelude::*, state::State};
+use crate::{filters::Filtering, prelude::*, state::State};
 use crossterm::{
     cursor::{Hide, MoveTo, Show}, 
     event::{read, KeyCode, KeyModifiers}, 
@@ -7,7 +7,7 @@ use crossterm::{
     terminal::{self, Clear, ClearType}
 };
 
-pub fn run(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<(), Box<dyn Error>> {
+pub fn run(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<(), AppError> {
     let mut state = State::load(filter, &count_choices)?;
 
     let stdout = std::io::stdout();

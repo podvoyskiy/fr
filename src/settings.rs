@@ -8,7 +8,7 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub fn load() -> Result<AppConfig, Box<dyn Error>> {
+    pub fn load() -> Result<AppConfig, AppError> {
         let xdg_dirs = xdg::BaseDirectories::with_prefix(env!("CARGO_PKG_NAME"));
         let config_path = xdg_dirs.place_config_file("config").expect("CRITICAL: cannot create configuration directory");
 
@@ -30,15 +30,19 @@ impl AppConfig {
             let parts: Vec<&str> = line.split('=').collect();
             match parts[0].trim() {
                 "count_choices" => config.count_choices = parts[1].trim().parse()?,
-                "filter_id" => config.filter_type = FilterType::from_id(parts[1].trim().parse()?).ok_or_else(|| "Invalid filter id".to_string())?,
-                other => return Err(format!("Unknown config key: '{other}'").into()),
+                "filter_id" => {
+                    let id: u8 = parts[1].trim().parse()?;
+                    config.filter_type = FilterType::from_id(id).ok_or_else(|| AppError::SettingsLoad("Invalid filter id".into()))?;
+
+                },
+                other => return Err(AppError::SettingsLoad(format!("Unknown config key: '{other}'"))),
             }
         }
 
         Ok(config)
     }
 
-    pub fn save(&self) -> Result<(), std::io::Error> {
+    pub fn save(&self) -> Result<(), AppError> {
         let mut config_file = File::create(&self.path_to_file)?;
         writeln!(&mut config_file, "count_choices={}", &self.count_choices)?;
         writeln!(&mut config_file, "filter_id={}", &self.filter_type.id())?;

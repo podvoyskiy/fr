@@ -11,11 +11,11 @@ pub struct State {
 }
 
 impl State {
-    pub fn load(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<Self, Box<dyn Error>> {
+    pub fn load(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<Self, AppError> {
         let history_path = PathBuf::from(env::var("HOME").unwrap_or_default()).join(".bash_history");
 
         if !history_path.exists() || history_path.metadata()?.len() == 0 {
-            return Err("CRITICAL: file ~/.bash_history not found or it is empty".into());
+            return Err(AppError::HistoryLoad("CRITICAL: file ~/.bash_history not found or it is empty".into()));
         }
 
         let mut seen: HashSet<String> = HashSet::new();
