@@ -15,7 +15,7 @@ impl State {
         let history_path = PathBuf::from(env::var("HOME").unwrap_or_default()).join(".bash_history");
 
         if !history_path.exists() || history_path.metadata()?.len() == 0 {
-            return Err(AppError::HistoryLoad("CRITICAL: file ~/.bash_history not found or it is empty".into()));
+            return Err(AppError::HistoryLoad("File ~/.bash_history not found or it is empty".into()));
         }
 
         let mut seen: HashSet<String> = HashSet::new();

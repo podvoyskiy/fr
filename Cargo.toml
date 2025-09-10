@@ -1,10 +1,17 @@
 [package]
 name = "fr"
-version = "0.1.6"
+description = "Fuzzy command history search tool with interactive mode"
+version = "0.1.7"
 edition = "2024"
+authors = ["Podvoyskiy Ilya <ilya.podvoyskiy@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/podvoyskiy/fr"
+readme = "README.md"
+keywords = ["fuzzy-finder", "cli", "bash-history", "search"]
+rust-version = "1.88.0"
 
 [dependencies]
 colored = "3.0.0"
 crossterm = "0.29.0"
 xdg = "3.0.0"
-fuzzy-matcher = "*"
+fuzzy-matcher = "0.3.7"

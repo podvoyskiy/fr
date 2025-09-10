@@ -8,23 +8,27 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub fn load() -> Result<AppConfig, AppError> {
+    pub fn new() -> Result<Self, AppError> {
         let xdg_dirs = xdg::BaseDirectories::with_prefix(env!("CARGO_PKG_NAME"));
-        let config_path = xdg_dirs.place_config_file("config").expect("CRITICAL: cannot create configuration directory");
+        let config_path = xdg_dirs.place_config_file("config")?;
 
-        if !config_path.exists() {
-            let mut config_file = File::create(&config_path)?;
+        Ok(Self { 
+            path_to_file: config_path,
+            count_choices: u8::default(),
+            filter_type: FilterType::default()
+        })
+    }
+
+    pub fn load() -> Result<Self, AppError> {
+        let mut config = AppConfig::new()?;
+
+        if !config.path_to_file.exists() {
+            let mut config_file = File::create(&config.path_to_file)?;
             writeln!(&mut config_file, "count_choices=10")?;
             writeln!(&mut config_file, "filter_id=1")?;
         }
 
-        let content = read_to_string(&config_path)?;
-
-        let mut config = AppConfig {
-            path_to_file: config_path,
-            count_choices: 0,
-            filter_type: FilterType::default(),
-        };
+        let content = read_to_string(&config.path_to_file)?;
 
         for line in content.lines() {
             let parts: Vec<&str> = line.split('=').collect();
