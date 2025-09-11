@@ -1,4 +1,5 @@
-use crate::{filters::Filtering, prelude::*, state::State};
+use crate::prelude::{AppError, Filtering, CommandHistory};
+use std::fs::File;
 use crossterm::{
     cursor::{Hide, MoveTo, Show}, 
     event::{read, KeyCode, KeyModifiers}, 
@@ -7,8 +8,8 @@ use crossterm::{
     terminal::{self, Clear, ClearType}
 };
 
-pub fn run(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<(), AppError> {
-    let mut state = State::load(filter, &count_choices)?;
+pub fn run(filter: Box<dyn Filtering>, &max_results: &u8) -> Result<(), AppError> {
+    let mut history = CommandHistory::load(filter, &max_results)?;
 
     let stdout = std::io::stdout();
     let mut tty = File::create("/dev/tty")?;
@@ -21,15 +22,15 @@ pub fn run(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<(), AppErr
         execute!(
             tty, 
             SetForegroundColor(Color::Yellow), 
-            Print(format!("> {}\n", state.current_cmd_mask)), 
+            Print(format!("> {}\n", history.search_query)), 
             SetForegroundColor(Color::Reset)
         )?;
 
-        if let Some(indices) = &state.filtered_indices_cmds {
+        if let Some(indices) = &history.filtered_indices {
             for (i, &idx) in indices.iter().enumerate() {
-                if let Some(cmd) = state.cmds.get(idx) {
+                if let Some(cmd) = history.commands.get(idx) {
                     execute!(tty, MoveTo(0, 1  + i as u16))?;
-                    if i == state.selected_index_cmd {
+                    if i == history.selected_index {
                         execute!(
                             tty,
                             SetForegroundColor(Color::Cyan),
@@ -50,29 +51,29 @@ pub fn run(filter: Box<dyn Filtering>, &count_choices: &u8) -> Result<(), AppErr
                 },
                 KeyCode::Esc => break,
                 KeyCode::Char(ch) => {
-                    state.current_cmd_mask.push(ch);
-                    state.search();
+                    history.search_query.push(ch);
+                    history.search();
                 },
                 KeyCode::Backspace => {
-                    state.current_cmd_mask.pop();
-                    state.search();
+                    history.search_query.pop();
+                    history.search();
                 },
                 KeyCode::Up => {
-                    if state.filtered_indices_cmds.is_some() && state.selected_index_cmd > 0 {
-                        state.selected_index_cmd -= 1;
+                    if history.filtered_indices.is_some() && history.selected_index > 0 {
+                        history.selected_index -= 1;
                     }
                 },
                 KeyCode::Down => {
-                    if let Some(indices) = &state.filtered_indices_cmds {
-                        if state.selected_index_cmd < indices.len().saturating_sub(1) {
-                            state.selected_index_cmd += 1;
+                    if let Some(indices) = &history.filtered_indices {
+                        if history.selected_index < indices.len().saturating_sub(1) {
+                            history.selected_index += 1;
                         }
                     }
                 },
                 KeyCode::Enter => {
-                    if let Some(indices) = &state.filtered_indices_cmds {
-                        if let Some(&selected_cmd_idx) = indices.get(state.selected_index_cmd) {
-                            if let Some(selected_cmd) = state.cmds.get(selected_cmd_idx) {
+                    if let Some(indices) = &history.filtered_indices {
+                        if let Some(&selected_cmd_idx) = indices.get(history.selected_index) {
+                            if let Some(selected_cmd) = history.commands.get(selected_cmd_idx) {
                                 execute!(&stdout, Print(format!("history -s \"{selected_cmd}\"\n{selected_cmd}\n")))?;
                                 break;
                             }
