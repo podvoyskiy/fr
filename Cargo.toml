@@ -1,7 +1,7 @@
 [package]
 name = "fr"
 description = "Fuzzy command history search tool with interactive mode"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2024"
 authors = ["Podvoyskiy Ilya <ilya.podvoyskiy@gmail.com>"]
 license = "MIT"
