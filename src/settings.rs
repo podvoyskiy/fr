@@ -9,7 +9,7 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub fn new() -> Result<Self, AppError> {
+    fn new() -> Result<Self, AppError> {
         let xdg_dirs = xdg::BaseDirectories::with_prefix(env!("CARGO_PKG_NAME"));
         let config_path = xdg_dirs.place_config_file("config")?;
 
@@ -21,7 +21,7 @@ impl AppConfig {
     }
 
     pub fn load() -> Result<Self, AppError> {
-        let mut config = AppConfig::new()?;
+        let mut config = Self::new()?;
 
         if !config.path_to_file.exists() {
             let mut config_file = File::create(&config.path_to_file)?;
