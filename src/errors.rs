@@ -1,6 +1,6 @@
 use std::{error, fmt, io, num::ParseIntError};
+use colored::*;
 
-#[derive(Debug)]
 pub enum AppError {
     Io(String),
     ParseIntError(String),
@@ -9,15 +9,22 @@ pub enum AppError {
     IncorrectCommand(String),
 }
 
+impl fmt::Debug for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(self, f)
+    }
+}
+
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            AppError::Io(msg) => write!(f, "IO error: {msg}"),
-            AppError::ParseIntError(msg) => write!(f, "ParseIntError error: {msg}"),
-            AppError::HistoryLoad(msg) => write!(f, "Failed to load history commands: {msg}"),
-            AppError::SettingsLoad(msg) => write!(f, "Failed to load settings: {msg}"),
-            AppError::IncorrectCommand(msg) => write!(f, "Incorrect command: {msg}"),
-        }
+        let message = match self {
+            AppError::Io(msg) => format!("IO error | {msg}").red(),
+            AppError::ParseIntError(msg) => format!("ParseIntError error | {msg}").red(),
+            AppError::HistoryLoad(msg) => format!("Failed to load history commands | {msg}").red(),
+            AppError::SettingsLoad(msg) => format!("Failed to load settings | {msg}").red(),
+            AppError::IncorrectCommand(msg) => format!("Incorrect command | {msg}").yellow(),
+        };
+        write!(f, "{message}")
     }
 }
 

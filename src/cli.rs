@@ -3,6 +3,7 @@ use crate::prelude::AppError;
 pub enum Command {
     SetMaxResults(u8),
     SetCurrentFilter(u8),
+    Stats,
     ShowHelp,
 }
 
@@ -25,6 +26,7 @@ impl Command {
                     _ => Err(AppError::IncorrectCommand("Filter id must be 1 or 2".into())),
                 }
             },
+            "--stats" | "-s" => Ok(Command::Stats),
             "--help" | "-h" => Ok(Command::ShowHelp),
             other => Err(AppError::IncorrectCommand(format!("Unknown command: {other}. use --help"))),
         }

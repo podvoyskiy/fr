@@ -1,17 +1,19 @@
 #![warn(clippy::all)]
 
 mod interactive;
-mod settings;
+mod config;
 mod cli;
 mod command_history;
 mod filters;
 mod errors;
+mod search;
 mod prelude { 
-    pub use crate::settings::AppConfig;
+    pub use crate::config::AppConfig;
     pub use crate::cli::Command;
     pub use crate::filters::{FilterType, Filtering};
     pub use crate::errors::AppError;
     pub use crate::command_history::CommandHistory;
+    pub use crate::search::Search;
 }
 use prelude::*;
 
@@ -41,6 +43,10 @@ fn main () -> Result<(), AppError> {
                     config.filter_type = FilterType::from_id(value).ok_or_else(|| AppError::IncorrectCommand("Invalid filter id".into()))?;
                     config.save()?;
                     println!("{} {}", "Settings updated: current_filter_id =".green(), value.to_string().green());
+                    Ok(())
+                },
+                Command::Stats => {
+                    config.print_stats()?;
                     Ok(())
                 },
                 Command::ShowHelp => {

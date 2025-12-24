@@ -1,4 +1,4 @@
-use crate::prelude::{AppError, FilterType};
+use crate::prelude::{AppError, FilterType, CommandHistory};
 use std::{fs::{read_to_string, File}, io::Write, path::PathBuf};
 use colored::*;
 
@@ -54,10 +54,29 @@ impl AppConfig {
         Ok(())
     }
 
+    pub fn print_stats(&self) -> Result<(), AppError> {
+        let command_history = CommandHistory::load(false)?;
+
+        let stats = command_history.get_stats();
+
+        if stats.is_empty() {
+            println!("{}", "No commands with sufficient usage".yellow());
+            return Ok(());
+        }
+
+        println!("{}", "Most used commands:".bright_purple());
+
+        for (i, (command, count))  in stats.iter().enumerate() {
+            println!("{}. {} ({} times)", i + 1, command, count.to_string().bold());
+        }
+        Ok(())
+    }
+
     pub fn print_help(&self) {
         println!("{}{}{}", "Usage:".yellow().bold(), " fr".blue().bold(), " [OPTION]".blue());
         println!("{}", "Options:".yellow().bold());
         println!("{}                Show this help", "  -h, --help".blue().bold());
+        println!("{}               Most used commands", "  -s, --stats".blue().bold());
         println!("{}{}     Set maximum number of results to display (current: {})", "  -m, --max_results".blue().bold(), " NUM".blue(), self.max_results);
         println!("{}{}     Set filter algorithm [1 - SkimMatcherV2, 2 - SubstringFilter] (current: {})",
             "  -f, --filter".blue().bold(), "      NUM".blue(), self.filter_type.id());
