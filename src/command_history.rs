@@ -1,12 +1,23 @@
 use crate::prelude::AppError;
 use std::{collections::{HashMap, HashSet}, env, fs::read_to_string, path::PathBuf};
 
+#[derive(Default)]
 pub struct CommandHistory {
-    pub commands: Vec<String>
+    pub commands: Vec<String>,
+    unique: bool
 }
 
 impl CommandHistory {
-    pub fn load(unique: bool) -> Result<Self, AppError> {
+    pub fn new() -> Self {
+        CommandHistory::default()
+    }
+
+    pub fn unique(mut self) -> Self {
+        self.unique = true;
+        self
+    }
+
+    pub fn load(mut self) -> Result<Self, AppError> {
         let history_path = PathBuf::from(env::var("HOME").unwrap_or_default()).join(".bash_history");
 
         if !history_path.exists() || history_path.metadata()?.len() == 0 {
@@ -14,11 +25,11 @@ impl CommandHistory {
         }
 
         let mut seen: HashSet<String> = HashSet::new();
-        let commands: Vec<String> = read_to_string(&history_path)?
+        self.commands = read_to_string(&history_path)?
             .lines()
             .rev()
             .filter(|&line| {
-                if unique {
+                if self.unique {
                     seen.insert(line.to_string())
                 } else {
                     true
@@ -27,7 +38,7 @@ impl CommandHistory {
             .map(|line| line.to_string())
             .collect();
 
-        Ok(Self { commands })
+        Ok(self)
     }
 
     pub fn get_stats(&self) -> Vec<(&str, usize)> {
@@ -55,6 +66,6 @@ mod test {
 
     #[test]
     fn history_load() {
-        assert!(CommandHistory::load(true).is_ok())
+        assert!(CommandHistory::new().load().is_ok())
     }
 }

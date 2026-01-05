@@ -11,7 +11,7 @@ pub struct Search {
 
 impl Search {
     pub fn init(filter: Box<dyn Filtering>, &max_results: &u8) -> Result<Self, AppError> {
-        let command_history = CommandHistory::load(true)?;
+        let command_history = CommandHistory::new().unique().load()?;
 
         Ok(Self {
             filter,

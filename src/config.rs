@@ -55,7 +55,7 @@ impl AppConfig {
     }
 
     pub fn print_stats(&self) -> Result<(), AppError> {
-        let command_history = CommandHistory::load(false)?;
+        let command_history = CommandHistory::new().load()?;
 
         let stats = command_history.get_stats();
 
